@@ -1,12 +1,16 @@
 /* eslint-disable */
-import {Body,Controller,Delete,Get,Param,ParseIntPipe,Patch,Post,UsePipes,ValidationPipe} from '@nestjs/common';
+import {Body,Controller,Delete,Get,Param,ParseIntPipe,Patch,Post,UsePipes,ValidationPipe,UseGuards} from '@nestjs/common';
 import {BoardStatus} from './board.status.enum';
 import {BoardsService} from './boards.service';
 import {CreateBoardDto} from './dto/create-board.dto';
 import {BoardStatusValidationPipe} from './pipes/board-status-validation.pipe';
 import {Board} from './board.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/get-user.decorator';
+import { User } from 'src/auth/user.entity';
 
 @Controller('boards')
+@UseGuards(AuthGuard())
 export class BoardsController {
     constructor(private boardsService: BoardsService) {}
 
@@ -20,8 +24,8 @@ export class BoardsController {
     // 게시글 생성
     @Post()
     @UsePipes(ValidationPipe)
-    createBoard(@Body() createBoardDto: CreateBoardDto): Promise < Board > {
-        return this.boardsService.createBoard(createBoardDto);
+    createBoard(@Body() createBoardDto: CreateBoardDto, @GetUser() user:User): Promise < Board > {
+        return this.boardsService.createBoard(createBoardDto,user);
     }
 
     // 게시글 조회
